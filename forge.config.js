@@ -1,0 +1,65 @@
+// forge.config.js
+// Configuración principal de Electron Forge.
+
+const { FusesPlugin } = require('@electron-forge/plugin-fuses');
+const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+
+module.exports = {
+  packagerConfig: {
+    asar: true,
+  },
+  rebuildConfig: {},
+  makers: [
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {},
+    },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin'],
+    },
+    {
+      name: '@electron-forge/maker-deb',
+      config: {},
+    },
+    {
+      name: '@electron-forge/maker-rpm',
+      config: {},
+    },
+  ],
+  plugins: [
+    {
+      name: '@electron-forge/plugin-auto-unpack-natives',
+      config: {},
+    },
+    {
+      name: '@electron-forge/plugin-webpack',
+      config: {
+        mainConfig: './webpack.main.config.js',
+        renderer: {
+          config: './webpack.renderer.config.js',
+          entryPoints: [
+            {
+              html: './src/renderer/index.html',
+              js: './src/renderer/index.js',
+              name: 'main_window',
+               preload: {
+                 js: './src/preload.js',
+               },
+            },
+          ],
+        },
+      },
+    },
+    new FusesPlugin({
+      version: FuseVersion.V1,
+      [FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.EnableCookieEncryption]: true,
+      [FuseV1Options.EnableNodeGlobalIsolatedFromWeb]: true,
+      [FuseV1Options.EnableNodeLoadingNativeLibraries]: true,
+      [FuseV1Options.EnableRestrictingMainProcessAPI]: true,
+      [FuseV1Options.EnableRendererContextIsolation]: true,
+      [FuseV1Options.EnableSandbox]: false,
+    }),
+  ],
+};
